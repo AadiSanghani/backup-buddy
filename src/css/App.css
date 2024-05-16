@@ -1,0 +1,5 @@
+#root {
+  background-color: #e2ebe6;
+  height: 100vh; /* This makes sure the color covers the full viewport height */
+  width: 100vw;
+}
