@@ -15,9 +15,12 @@ import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/500.css";
 import "@fontsource/poppins/700.css";
 
+import ModalLoginPopUp from './ModalLoginPopUp';
+
 const pages = ["Home", "About", "How it works", "Join Us"];
 
 function ResponsiveAppBar() {
+  const [openModal, setOpenModal] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -25,6 +28,14 @@ function ResponsiveAppBar() {
   };
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
+  };
+
+  const handleOpenModal = () => {
+    setOpenModal(true); // Function to open the modal
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false); // Function to close the modal
   };
 
   const theme = createTheme({
@@ -118,7 +129,7 @@ function ResponsiveAppBar() {
               {pages.map((page, index) => (
                 <Button
                   key={page}
-                  onClick={handleCloseNavMenu}
+                  onClick={page === "Join Us" ? handleOpenModal : handleCloseNavMenu}
                   sx={{
                     my: 2,
                     color: page === "Join Us" ? "white" : "black",
@@ -143,6 +154,7 @@ function ResponsiveAppBar() {
           </Toolbar>
         </Container>
       </AppBar>
+      <ModalLoginPopUp open={openModal} handleClose={handleCloseModal} />
     </ThemeProvider>
   );
 }

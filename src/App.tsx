@@ -4,6 +4,7 @@ import ResponsiveAppBar from "./components/ResponsiveAppBar";
 import LandingPage from "./components/LandingPage";
 import MidSection from "./components/MidSection";
 import HowItWorks from "./components/HotItWorks"
+import Footer from "./components/Footer"
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <LandingPage />
       <MidSection/>
       <HowItWorks/>
+      <Footer/>
     </div>
   );
 }

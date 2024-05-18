@@ -1,78 +1,74 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Grid,
   Typography,
   CssBaseline,
   Box,
+  Button,
   useTheme,
   useMediaQuery,
-  Button,
+  ThemeProvider,
 } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import "@fontsource/poppins/300.css";
-import "@fontsource/poppins/400.css";
-import "@fontsource/poppins/500.css";
-import "@fontsource/poppins/700.css";
+import { createTheme } from "@mui/material/styles";
 import LandingImg from "./LandingPageImg";
 import "../css/LandingPage.css";
+import ModalLoginPopUp from './ModalLoginPopUp';
+
+// Create a theme outside the component to avoid recreation on each render
+const textTheme = createTheme({
+  typography: {
+    fontFamily: "poppins",
+  },
+});
 
 function LandingPage() {
   const theme = useTheme();
-  const isLargeOrLarger = useMediaQuery(theme.breakpoints.up("lg")); // Applies to large and extra large devices
+  const isLargeOrLarger = useMediaQuery(theme.breakpoints.up("lg"));
+  const [modalOpen, setModalOpen] = useState(false);
 
-  // Correctly typed styles for the image container Grid item
-  const imageGridItemStyle: React.CSSProperties = isLargeOrLarger
-    ? { padding: 0, position: "relative", height: "calc(100vh + 120px)" }
-    : { padding: 0, position: "relative" }; // No height adjustment for smaller screens
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
 
-  // Correctly typed styles for the SVG image
-  const imageStyle: React.CSSProperties = isLargeOrLarger
-    ? {
-        position: "absolute",
-        top: "-150px",
-        left: 0,
-        width: "100%",
-        height: "calc(100vh + 150px)",
-      }
-    : { position: "relative", width: "100%", height: "100%" }; // Image takes up the space it needs on smaller screens
+  const imageGridItemStyle = {
+    padding: 0,
+    position: "relative",
+    ...(isLargeOrLarger ? { height: "calc(100vh + 120px)" } : {})
+  };
 
-  // Text box style for large and extra large screens
-  const textBoxStyle: React.CSSProperties = isLargeOrLarger
-    ? { textAlign: "center", position: "relative", top: "-100px" } // Adjust 'top' as needed
-    : { textAlign: "center" };
+  const imageStyle = {
+    position: isLargeOrLarger ? "absolute" : "relative",
+    top: isLargeOrLarger ? "-150px" : undefined,
+    left: 0,
+    width: "100%",
+    height: isLargeOrLarger ? "calc(100vh + 150px)" : "100%"
+  };
 
-  const textTheme = createTheme({
-    typography: {
-      fontFamily: "poppins",
-    },
-  });
+  const textBoxStyle = {
+    textAlign: "center",
+    ...(isLargeOrLarger ? { position: "relative", top: "-100px" } : {})
+  };
 
   return (
     <>
       <CssBaseline />
       <div className="outside">
-        <Grid
-          container
-          style={{
-            height: isLargeOrLarger ? "100vh" : "auto",
-            width: "100vw",
-            margin: 0,
-            overflow: "hidden",
-          }}
-        >
+        <ThemeProvider theme={textTheme}>
           <Grid
-            item
-            xs={12}
-            md={6}
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 2,
-            }}
+            container
+            style={{ height: isLargeOrLarger ? "100vh" : "auto", width: "100vw", margin: 0, overflow: "hidden" }}
           >
-            <Box style={textBoxStyle}>
-              <ThemeProvider theme={textTheme}>
+            <Grid
+              item
+              xs={12}
+              md={6}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 2,
+              }}
+            >
+              <Box sx={textBoxStyle}>
                 <Typography
                   variant="h2"
                   component="div"
@@ -114,38 +110,35 @@ function LandingPage() {
                   No worries!
                 </Typography>
 
-                  <Button
-                    variant="text"
-                    size="large"
-                    sx={{
-                      padding: "6px 30px",
-                      borderRadius: "40px",
-                      backgroundColor: "#1B998B",
-                      color: "white",
-                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-                      minHeight: "50px",
-                      minWidth: "50px",
-                      "&:hover": {
-                        backgroundColor: "#15897C",
-                      },
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      component="div"
-                       
-                    >
-                      Join Us
-                    </Typography>
-                  </Button>
-
-              </ThemeProvider>
-            </Box>
+                <Button
+                  onClick={handleOpenModal}
+                  variant="text"
+                  size="large"
+                  sx={{
+                    padding: "6px 30px",
+                    borderRadius: "40px",
+                    backgroundColor: "#1B998B",
+                    color: "white",
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+                    minHeight: "50px",
+                    minWidth: "50px",
+                    "&:hover": {
+                      backgroundColor: "#15897C",
+                    },
+                  }}
+                >
+                  <Typography variant="h5" component="div">
+                    Join Us
+                  </Typography>
+                </Button>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={6} sx={imageGridItemStyle}>
+              <LandingImg style={imageStyle as React.CSSProperties} />
+            </Grid>
           </Grid>
-          <Grid item xs={12} md={6} style={imageGridItemStyle}>
-            <LandingImg style={imageStyle} />
-          </Grid>
-        </Grid>
+          <ModalLoginPopUp open={modalOpen} handleClose={handleCloseModal} />
+        </ThemeProvider>
       </div>
     </>
   );
