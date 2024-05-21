@@ -7,7 +7,7 @@ const theme = createTheme({
     fontFamily: "Poppins",
   },
 });
-
+// Testing
 function StepBoxes() {
   const boxStyle = {
     backgroundColor: '#7ECFA2',
