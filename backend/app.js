@@ -3,14 +3,22 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+var cors = require("cors");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
-
 var authRouter = require("./routes/oauth");
 var requestRouter = require("./routes/requests");
 
 var app = express();
+
+// Configure CORS
+const corsOptions = {
+  origin: "http://localhost:5173", // Your frontend's origin
+  optionsSuccessStatus: 200, // Some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
+app.use(cors(corsOptions));
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -24,7 +32,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-
 app.use("/oauth", authRouter);
 app.use("/request", requestRouter);
 

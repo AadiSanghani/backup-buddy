@@ -20,6 +20,32 @@ interface ModalLoginPopUpProps {
   handleClose: () => void;
 }
 
+function navigate(url: string): void {
+  window.location.href = url;
+}
+
+async function auth() {
+  try {
+    const response = await fetch('http://127.0.0.1:3000/request', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("This is the data coming from the modal", data);
+    navigate(data.url);
+  } catch (error) {
+    console.error("Failed to fetch", error);
+  }
+}
+
+
 function ModalLoginPopUp({ open, handleClose: originalHandleClose }: ModalLoginPopUpProps) {
   const [isSignUp, setIsSignUp] = useState(false); // State to toggle between login and sign-up
 
@@ -108,7 +134,7 @@ function ModalLoginPopUp({ open, handleClose: originalHandleClose }: ModalLoginP
               <Button fullWidth variant="contained" sx={{ mb: 1 }}>
                 Sign in
               </Button>
-              <Button fullWidth variant="outlined" startIcon={<GoogleIcon />} sx={{ mb: 2 }}>
+              <Button fullWidth variant="outlined" startIcon={<GoogleIcon />} sx={{ mb: 2 }} onClick={auth}>
                 Sign in with Google
               </Button>
               <Typography component="div" sx={{ textAlign: 'center', mt: 2 }}>
