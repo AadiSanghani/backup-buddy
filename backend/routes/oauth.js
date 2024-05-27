@@ -3,8 +3,8 @@ var router = express.Router();
 const dotenv = require("dotenv");
 dotenv.config();
 const { OAuth2Client } = require("google-auth-library");
-const fetch = require("node-fetch"); // Make sure to install node-fetch
-const User = require("../models/users"); // Adjust the path as necessary
+const fetch = require("node-fetch");
+const User = require("../models/users");
 
 async function getUserData(access_token) {
   const response = await fetch(
