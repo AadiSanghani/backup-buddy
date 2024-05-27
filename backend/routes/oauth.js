@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const { OAuth2Client } = require("google-auth-library");
 const fetch = require("node-fetch"); // Make sure to install node-fetch
+const User = require("../models/users"); // Adjust the path as necessary
 
 async function getUserData(access_token) {
   const response = await fetch(
@@ -31,11 +32,35 @@ router.get("/", async function (req, res, next) {
     oAuth2Client.setCredentials(tokenResponse.tokens);
     console.log("Tokens got");
 
-    const user = oAuth2Client.credentials;
-    console.log("Credentials", user);
+    const userCredentials = oAuth2Client.credentials;
+    console.log("Credentials", userCredentials);
 
-    const userData = await getUserData(user.access_token);
-    res.json(userData); // Send user data as the response
+    const userData = await getUserData(userCredentials.access_token);
+    console.log("User Data from Google:", userData);
+
+    // Extract user information
+    const { sub: googleId, name, picture: profilePicture } = userData;
+
+    // Find or create user in database
+    let user = await User.findOne({ googleId });
+    if (!user) {
+      user = new User({
+        googleId,
+        name,
+        profilePicture,
+        accessToken: userCredentials.access_token,
+        refreshToken: userCredentials.refresh_token,
+      });
+    } else {
+      user.lastLogin = Date.now();
+      user.accessToken = userCredentials.access_token;
+      user.refreshToken = userCredentials.refresh_token;
+    }
+
+    await user.save();
+
+    // Send user information back to the client (or set a session, or generate a JWT, etc.)
+    res.json(user);
   } catch (err) {
     console.error("Got an error", err);
     res.status(500).send("Internal Server Error"); // Send error response

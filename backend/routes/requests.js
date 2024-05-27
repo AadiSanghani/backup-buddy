@@ -4,7 +4,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 const { OAuth2Client } = require("google-auth-library");
 
-// POST Calls
 router.post("/", async function (req, res, next) {
   const redirectUrl = "http://127.0.0.1:3000/oauth";
 
