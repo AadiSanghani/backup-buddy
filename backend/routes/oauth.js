@@ -5,6 +5,7 @@ dotenv.config();
 const { OAuth2Client } = require("google-auth-library");
 const fetch = require("node-fetch");
 const User = require("../models/users");
+const bcrypt = require("bcrypt");
 
 async function getUserData(access_token) {
   const response = await fetch(
@@ -38,6 +39,16 @@ router.get("/", async function (req, res, next) {
     const userData = await getUserData(userCredentials.access_token);
     console.log("User Data from Google:", userData);
 
+    // Hash the tokens
+    const hashedAccessToken = await bcrypt.hash(
+      userCredentials.access_token,
+      10
+    );
+    const hashedRefreshToken = await bcrypt.hash(
+      userCredentials.refresh_token,
+      10
+    );
+
     // Extract user information
     const { sub: googleId, name, picture: profilePicture } = userData;
 
@@ -48,13 +59,13 @@ router.get("/", async function (req, res, next) {
         googleId,
         name,
         profilePicture,
-        accessToken: userCredentials.access_token,
-        refreshToken: userCredentials.refresh_token,
+        accessToken: hashedAccessToken,
+        refreshToken: hashedRefreshToken,
       });
     } else {
       user.lastLogin = Date.now();
-      user.accessToken = userCredentials.access_token;
-      user.refreshToken = userCredentials.refresh_token;
+      user.accessToken = hashedAccessToken;
+      user.refreshToken = hashedRefreshToken;
     }
 
     await user.save();
