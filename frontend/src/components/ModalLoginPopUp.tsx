@@ -10,6 +10,7 @@ import {
   createTheme, 
   ThemeProvider
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import GoogleIcon from '@mui/icons-material/Google';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -20,17 +21,15 @@ interface ModalLoginPopUpProps {
   handleClose: () => void;
 }
 
-function navigate(url: string): void {
-  window.location.href = url;
-}
-
 async function auth() {
+  console.log("Auth function called");
   try {
     const response = await fetch('http://127.0.0.1:3000/request', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      credentials: 'include' // Ensure cookies are sent with the request
     });
 
     if (!response.ok) {
@@ -39,15 +38,17 @@ async function auth() {
 
     const data = await response.json();
     console.log("This is the data coming from the modal", data);
-    navigate(data.url);
+
+    // Redirect the user to the Google authentication URL
+    window.location.href = data.url;
   } catch (error) {
     console.error("Failed to fetch", error);
   }
 }
 
-
 function ModalLoginPopUp({ open, handleClose: originalHandleClose }: ModalLoginPopUpProps) {
   const [isSignUp, setIsSignUp] = useState(false); // State to toggle between login and sign-up
+  const navigate = useNavigate(); // Get navigate function
 
   const theme = createTheme({
     palette: {
@@ -68,6 +69,11 @@ function ModalLoginPopUp({ open, handleClose: originalHandleClose }: ModalLoginP
 
   const handleToggleView = () => {
     setIsSignUp(!isSignUp);
+  };
+
+  const handleGoogleSignIn = () => {
+    console.log("Google sign-in button clicked");
+    auth();
   };
 
   return (
@@ -134,7 +140,7 @@ function ModalLoginPopUp({ open, handleClose: originalHandleClose }: ModalLoginP
               <Button fullWidth variant="contained" sx={{ mb: 1 }}>
                 Sign in
               </Button>
-              <Button fullWidth variant="outlined" startIcon={<GoogleIcon />} sx={{ mb: 2 }} onClick={auth}>
+              <Button fullWidth variant="outlined" startIcon={<GoogleIcon />} sx={{ mb: 2 }} onClick={handleGoogleSignIn}>
                 Sign in with Google
               </Button>
               <Typography component="div" sx={{ textAlign: 'center', mt: 2 }}>

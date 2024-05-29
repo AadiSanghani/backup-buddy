@@ -1,20 +1,20 @@
 import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./css/App.css";
-import ResponsiveAppBar from "./components/ResponsiveAppBar";
-import LandingPage from "./components/LandingPage";
-import MidSection from "./components/MidSection";
-import HowItWorks from "./components/HotItWorks"
-import Footer from "./components/Footer"
+import FrontPage from "./views/FrontPage"; 
+import Dashboard from "./components/Dashboard";
 
 function App() {
   return (
-    <div className="App">
-      <ResponsiveAppBar />
-      <LandingPage />
-      <MidSection/>
-      <HowItWorks/>
-      <Footer/>
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<FrontPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          {/* Add other routes here */}
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

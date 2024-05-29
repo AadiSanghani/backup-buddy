@@ -4,8 +4,9 @@ const dotenv = require("dotenv");
 dotenv.config();
 const { OAuth2Client } = require("google-auth-library");
 const fetch = require("node-fetch");
-const User = require("../models/users");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const User = require("../models/users");
 
 async function getUserData(access_token) {
   const response = await fetch(
@@ -19,6 +20,11 @@ async function getUserData(access_token) {
 
 router.get("/", async function (req, res, next) {
   const code = req.query.code;
+
+  if (!code) {
+    console.error("Authorization code not found in the request.");
+    return res.status(400).send("Authorization code not found.");
+  }
 
   try {
     const redirectUrl = "http://127.0.0.1:3000/oauth";
@@ -50,7 +56,7 @@ router.get("/", async function (req, res, next) {
     );
 
     // Extract user information
-    const { sub: googleId, name, picture: profilePicture } = userData;
+    const { sub: googleId, name, picture: profilePicture, email } = userData;
 
     // Find or create user in database
     let user = await User.findOne({ googleId });
@@ -58,6 +64,7 @@ router.get("/", async function (req, res, next) {
       user = new User({
         googleId,
         name,
+        email,
         profilePicture,
         accessToken: hashedAccessToken,
         refreshToken: hashedRefreshToken,
@@ -70,11 +77,23 @@ router.get("/", async function (req, res, next) {
 
     await user.save();
 
-    // Send user information back to the client (or set a session, or generate a JWT, etc.)
-    res.json(user);
+    // Generate JWT
+    const token = jwt.sign(
+      {
+        googleId: user.googleId,
+        name: user.name,
+        email: user.email,
+        contacts: user.contacts,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Redirect to the frontend with the token
+    res.redirect(`http://127.0.0.1:5173/dashboard?token=${token}`);
   } catch (err) {
     console.error("Got an error", err);
-    res.status(500).send("Internal Server Error"); // Send error response
+    res.status(500).send("Internal Server Error");
   }
 });
 
